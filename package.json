@@ -1,0 +1,31 @@
+{
+  "name": "rollup-starter-lib",
+  "version": "1.0.0",
+  "main": "dist/how-long-till-lunch.cjs.js",
+  "module": "dist/how-long-till-lunch.esm.js",
+  "browser": "dist/how-long-till-lunch.umd.js",
+  "dependencies": {
+    "ms": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "rollup": "^0.67.0",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js",
+    "lint": "eslint src/* rollup.config.js",
+    "pretest": "npm run build"
+  },
+  "files": [
+    "dist"
+  ]
+}
