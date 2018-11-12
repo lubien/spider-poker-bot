@@ -62,3 +62,27 @@ export function getVoteCount (ctx) {
 export function getMessageId (ctx) {
   return ctxGame(ctx).map(R.prop('messageId'))
 }
+
+export function getVotesGrouped (ctx) {
+  return ctxGame(ctx)
+    .map(R.prop('votes'))
+    .map(votes => {
+      const voteList = R.values(votes)
+      const groups = R.groupBy(R.prop('vote'), voteList)
+
+      const groupList = R.compose(R.sortBy(voteEntryIndex), R.values)(groups)
+
+      return groupList
+    })
+}
+
+function voteEntryIndex (voteEntry) {
+  const value = R.prop('vote', voteEntry)
+
+  return R.cond([
+    [R.equals('1/2'), () => 0.5],
+    [R.equals('🤔'), () => 100],
+    [R.equals('☕'), () => 101],
+    [R.T, n => parseInt(n)]
+  ])
+}
