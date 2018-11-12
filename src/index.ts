@@ -20,7 +20,6 @@ bot.use(session({
 }))
 
 bot.command('poker', commandPoker)
-bot.command('finish', commandFinish)
 bot.on('callback_query', callbackQuery)
 
 bot.startPolling()
@@ -31,17 +30,16 @@ function commandPoker (ctx) {
   const inGame = game.ctxInGame(ctx)
 
   if (inGame) {
-    return warnInGame(ctx)
+    return finishGame(ctx)
   }
 
   return startGame(ctx)
 }
 
-async function commandFinish (ctx) {
-  const inGame = game.ctxInGame(ctx)
+async function finishGame (ctx) {
   const messageId = game.getMessageId(ctx).getOrElse(false)
 
-  if (!inGame || !messageId) {
+  if (!messageId) {
     return warnNotInGame(ctx)
   }
 
@@ -54,10 +52,10 @@ async function commandFinish (ctx) {
     const suffix = count > 1
       ? 'votes'
       : 'vote'
-
+  
     const peopleNames = votes
       .map(R.compose(userToName, R.prop('user')))
-
+  
     return `*${vote}* (${count} ${suffix}) ${peopleNames.join(', ')}`
   }).join('\n')
 
@@ -66,16 +64,6 @@ async function commandFinish (ctx) {
   await ctx.replyWithMarkdown(message, { reply_to_message_id: messageId })
 
   ctx.session.game = false
-}
-
-function warnInGame (ctx) {
-  const messageId = game.getMessageId(ctx).getOrElse(false)
-
-  if (!messageId) {
-    return
-  }
-
-  ctx.reply('Already in game.', { reply_to_message_id: messageId })
 }
 
 function warnNotInGame (ctx) {
