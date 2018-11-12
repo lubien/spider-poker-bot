@@ -39,11 +39,7 @@ const InlineKeyboardMarkup = Markup.inlineKeyboard(
   [
     ['0', '1/2', '1', '2', '3', '5', '8'],
     ['13', '20', '40', '100', '🤔', '☕']
-  ].map(row =>
-    row.map(item =>
-      Markup.callbackButton(item, item)
-    )
-  )
+  ].map(row => row.map(item => Markup.callbackButton(item, item)))
 ).extra()
 
 function startGame (ctx) {
