@@ -15,8 +15,7 @@
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
     "typeRoots": [                          /* List of folders to include type definitions from. */
-      "node_modules/telegraf/**/**",        /* Just for semantics. */
-      "node_modules/@types/**/**"           /* This will prevent TS compiler from running in *.d.ts files and then compling them. */
+      "node_modules/**/**"
     ],
   },
   "include": [
