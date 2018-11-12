@@ -13,7 +13,11 @@ require('dotenv').config({
 
 const bot = new Telegraf(process.env.BOT_TOKEN || '')
 
-bot.use(session())
+bot.use(session({
+  getSessionKey (ctx) {
+    return ctx.chat && `${ctx.chat.id}`
+  }
+}))
 
 bot.command('poker', commandPoker)
 bot.command('finish', commandFinish)
@@ -46,11 +50,15 @@ async function commandFinish (ctx) {
   const votesText = voteGroups.map(votes => {
     const firstVote = R.view(R.lensIndex(0), votes)
     const vote = R.prop('vote', firstVote)
+    const count = votes.length
+    const suffix = count > 1
+      ? 'votes'
+      : 'vote'
 
     const peopleNames = votes
       .map(R.compose(userToName, R.prop('user')))
 
-    return `*${vote}* ${peopleNames.join(', ')}`
+    return `*${vote}* (${count} ${suffix}) ${peopleNames.join(', ')}`
   }).join('\n')
 
   const message = ['Game finished!', '', votesText].join('\n')
