@@ -25,7 +25,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.js --exec babel-node",
     "test": "node test/test.js",
-    "lint": "eslint src/* rollup.config.os",
+    "lint": "eslint src/*",
     "pretest": "npm run build"
   },
   "files": [
