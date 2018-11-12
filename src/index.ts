@@ -38,9 +38,9 @@ function commandPoker (ctx) {
 }
 
 async function finishGame (ctx) {
-  const messageId = game.getMessageId(ctx).getOrElse(false)
+  const gameMessageId = game.getMessageId(ctx).getOrElse(false)
 
-  if (!messageId) {
+  if (!gameMessageId) {
     return warnNotInGame(ctx)
   }
 
@@ -62,7 +62,13 @@ async function finishGame (ctx) {
 
   const message = ['Game finished!', '', votesText].join('\n')
 
-  await ctx.replyWithMarkdown(message, { reply_to_message_id: messageId })
+  const chatId = ctx.message.chat.id
+  const inlineMessageId = undefined
+
+  await Promise.all([
+    ctx.replyWithMarkdown(message, { reply_to_message_id: gameMessageId }),
+    ctx.telegram.editMessageText(chatId, gameMessageId, inlineMessageId, ...votingMessage(ctx, true))
+  ])
 
   ctx.session.game = false
 }
@@ -113,7 +119,7 @@ function registerVote (ctx) {
   return ctx.answerCbQuery(`You voted [${vote}].`)
 }
 
-function votingMessage (ctx) {
+function votingMessage (ctx, finished = false) {
   const count = game.getVoteCount(ctx).getOrElse(0)
   const repliedMessageId = getRepliedMessageId(ctx)
     .getOrElse(
@@ -121,15 +127,26 @@ function votingMessage (ctx) {
     )
 
   const extra = {
-    reply_markup: InlineKeyboardMarkup,
+    reply_markup: finished ? undefined : InlineKeyboardMarkup,
     reply_to_message_id: repliedMessageId
   }
+
+  const prefix = finished
+    ? '[Closed]'
+    : ''
 
   const textVotesSuffix = count === 1
     ? 'vote'
     : 'votes'
 
-  const text = `Spider Poker game! ${count ? `(${count} ${textVotesSuffix})` : ''}`
+  const suffix = count 
+    ? `(${count} ${textVotesSuffix})` 
+    : ''
+
+  const text = [
+    `${prefix} Spider Poker game! ${suffix}`.trim(),
+    'Run /poker to finish.'
+  ].join('\n')
 
   return [text, extra]
 }
