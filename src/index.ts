@@ -32,7 +32,13 @@ function commandPoker (ctx) {
 }
 
 function warnInGame (ctx) {
-  ctx.reply('Already in game.')
+  const messageId = game.getMessageId(ctx).getOrElse(false)
+
+  if (!messageId) {
+    return
+  }
+
+  ctx.reply('Already in game.', { reply_to_message_id: messageId })
 }
 
 const InlineKeyboardMarkup = Markup.inlineKeyboard(
@@ -42,9 +48,11 @@ const InlineKeyboardMarkup = Markup.inlineKeyboard(
   ].map(row => row.map(item => Markup.callbackButton(item, item)))
 ).extra()
 
-function startGame (ctx) {
-  ctx.session.game = game.newGame()
-  return ctx.reply(...votingMessage(ctx))
+async function startGame (ctx) {
+  const message = await ctx.reply(...votingMessage(ctx))
+  const messageId : number = message.message_id
+  ctx.session.game = game.newGame(messageId)
+  return 
 }
 
 function callbackQuery (ctx) {

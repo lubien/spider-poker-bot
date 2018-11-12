@@ -17,9 +17,10 @@ export function ctxInGame (ctx) {
   return maybeStatus.getOrElse(false)
 }
 
-export function newGame () {
+export function newGame (messageId: number) {
   return {
     active: true,
+    messageId,
     votes: {}
   }
 }
@@ -56,4 +57,8 @@ export function getVoteCount (ctx) {
   return ctxGame(ctx)
     .map(R.prop('votes'))
     .map(R.compose(R.length, R.keys))
+}
+
+export function getMessageId (ctx) {
+  return ctxGame(ctx).map(R.prop('messageId'))
 }
