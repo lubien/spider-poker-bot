@@ -3,6 +3,7 @@ import Telegraf from 'telegraf'
 import session from 'telegraf/session'
 import Markup from 'telegraf/markup'
 import R from 'ramda'
+import { Maybe } from 'ramda-fantasy'
 import * as game from './game'
 import { User } from 'telegram-typings'
 
@@ -75,7 +76,7 @@ const InlineKeyboardMarkup = Markup.inlineKeyboard(
     ['0', '1/2', '1', '2', '3', '5', '8'],
     ['13', '20', '40', '100', '🤔', '☕']
   ].map(row => row.map(item => Markup.callbackButton(item, item)))
-).extra()
+)
 
 async function startGame (ctx) {
   const message = await ctx.reply(...votingMessage(ctx))
@@ -114,14 +115,23 @@ function registerVote (ctx) {
 
 function votingMessage (ctx) {
   const count = game.getVoteCount(ctx).getOrElse(0)
+  const repliedMessageId = getRepliedMessageId(ctx)
+    .getOrElse(
+      getMessageId(ctx).getOrElse(undefined)
+    )
 
-  const text = R.cond([
-    [R.equals(0), () => 'New Spider Poker game!'],
-    [R.equals(1), () => 'Spider Poker game! (1 vote).'],
-    [R.T, count => `Spider Poker game! (${count} votes).`]
-  ])(count)
+  const extra = {
+    reply_markup: InlineKeyboardMarkup,
+    reply_to_message_id: repliedMessageId
+  }
 
-  return [text, InlineKeyboardMarkup]
+  const textVotesSuffix = count === 1
+    ? 'vote'
+    : 'votes'
+
+  const text = `Spider Poker game! ${count ? `(${count} ${textVotesSuffix})` : ''}`
+
+  return [text, extra]
 }
 
 function userToName (user: User) {
@@ -135,4 +145,14 @@ function userToName (user: User) {
   const lastName = R.prop('last_name', user)
 
   return `${firstName} ${lastName}`.trim()
+}
+
+function getRepliedMessageId (ctx) {
+  const lens = R.lensPath(['update', 'message', 'reply_to_message', 'message_id'])
+  return Maybe.toMaybe(R.view(lens, ctx))
+}
+
+function getMessageId (ctx) {
+  const lens = R.lensPath(['update', 'message', 'message_id'])
+  return Maybe.toMaybe(R.view(lens, ctx))
 }
