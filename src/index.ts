@@ -10,7 +10,7 @@ require('dotenv').config({
   silent: true
 })
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN || '')
 
 bot.use(session())
 
@@ -44,7 +44,7 @@ const InlineKeyboardMarkup = Markup.inlineKeyboard(
 
 function startGame (ctx) {
   ctx.session.game = game.newGame()
-  return ctx.reply(...votingMessage())
+  return ctx.reply(...votingMessage(ctx))
 }
 
 function callbackQuery (ctx) {
