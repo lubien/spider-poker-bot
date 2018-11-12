@@ -14,6 +14,10 @@ require('dotenv').config({
 
 const bot = new Telegraf(process.env.BOT_TOKEN || '')
 
+bot.telegram.getMe().then(botInfo => {
+  bot.options.username = botInfo.username
+})
+
 bot.use(session({
   getSessionKey (ctx) {
     return ctx.chat && `${ctx.chat.id}`
