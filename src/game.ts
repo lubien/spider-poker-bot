@@ -63,11 +63,15 @@ export function getMessageId (ctx) {
   return ctxGame(ctx).map(R.prop('messageId'))
 }
 
-export function getVotesGrouped (ctx) {
+export function getVotes (ctx) {
   return ctxGame(ctx)
     .map(R.prop('votes'))
-    .map(votes => {
-      const voteList = R.values(votes)
+    .map(R.values)
+}
+
+export function getVotesGrouped (ctx) {
+  return getVotes(ctx)
+    .map(voteList => {
       const groups = R.groupBy(R.prop('vote'), voteList)
 
       const groupList = R.compose(R.sortBy(voteEntryIndex), R.values)(groups)

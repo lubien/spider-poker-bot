@@ -128,25 +128,39 @@ function votingMessage (ctx, finished = false) {
 
   const extra = {
     reply_markup: finished ? undefined : InlineKeyboardMarkup,
-    reply_to_message_id: repliedMessageId
+    reply_to_message_id: repliedMessageId,
+    parse_mode: 'Markdown'
   }
+
+  const people = game.getVotes(ctx)
+    .getOrElse([])
+    .map(R.compose(userToName, R.prop('user')))
 
   const prefix = finished
     ? '[Closed]'
     : ''
 
-  const textVotesSuffix = count === 1
+  const votesSuffix = count === 1
     ? 'vote'
     : 'votes'
 
-  const suffix = count 
-    ? `(${count} ${textVotesSuffix})` 
+  const voteCount = count 
+    ? `${count} ${votesSuffix}: ` 
     : ''
 
-  const text = [
-    `${prefix} Spider Poker game! ${suffix}`.trim(),
-    'Run /poker to finish.'
-  ].join('\n')
+  const headerText = `*${prefix} Spider Poker game!*`.trim()
+
+  const countText = count 
+    ? `${voteCount} ${people.join(', ')}`
+    : false
+
+  const footerText = 'Run /poker to finish.'
+  
+  const text =
+`${headerText}
+${countText ? `\n${countText}\n` : ''}
+${footerText}
+`
 
   return [text, extra]
 }
